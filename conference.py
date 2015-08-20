@@ -678,7 +678,6 @@ class ConferenceApi(remote.Service):
         # look up the sessions based on SessionKey in the profile.sessionKeysWishList
         s_keys = [ndb.Key(urlsafe=wsk) for wsk in profile.sessionKeysWishList]
         sessions = ndb.get_multi(s_keys)
-        #logging.debug( sessions )
         # return set of SessionForm objects one per Session
         return SessionForms(items=[self._copySessionToForm(sesn) for sesn in sessions])
 
