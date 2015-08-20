@@ -115,6 +115,7 @@ class ConferenceQueryForms(messages.Message):
     filters = messages.MessageField(ConferenceQueryForm, 1, repeated=True)
 
 class Session(ndb.Model):
+    """Session object """
     name        = ndb.StringProperty(required=True)
     highlights  = ndb.StringProperty(repeated=True)
     speaker     = ndb.StringProperty()
@@ -125,6 +126,7 @@ class Session(ndb.Model):
     webSafeConfId = ndb.StringProperty()
 
 class SessionForm(messages.Message):
+    """SessionForm - Session outbound form message"""
     name        = messages.StringField(1)
     highlights  = messages.StringField(2, repeated=True)
     speaker     = messages.StringField(3)
@@ -133,6 +135,7 @@ class SessionForm(messages.Message):
     date        = messages.StringField(6)
     startTime   = messages.FloatField(7)
     webSafeConfId = messages.StringField(8)
+    # adds in the websafeSessionKey, so you can lookup the Session
     websafeSessionKey  = messages.StringField(9)
 
 class SessionForms(messages.Message):

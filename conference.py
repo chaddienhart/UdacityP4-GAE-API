@@ -531,19 +531,16 @@ class ConferenceApi(remote.Service):
     ####################### Begin Project 4 work ###################
 
     def _copySessionToForm(self, session):
-        """Copy relevant fields from Conference to ConferenceForm."""
+        """Copy relevant fields from Session to SessionForm."""
         sf = SessionForm()
         logging.debug(type(session))
         for field in sf.all_fields():
-            # logging.debug(field)
             if hasattr(session, field.name):
                 # convert Date to date string; just copy others
                 if field.name.endswith('Date'):
                     setattr(sf, field.name, str(getattr(session, field.name)))
-                    # logging.debug(str(getattr(session, field.name)))
                 else:
                     setattr(sf, field.name, getattr(session, field.name))
-                    # logging.debug(getattr(session, field.name))
             elif field.name == "websafeSessionKey":
                 setattr(sf, field.name, session.key.urlsafe())
         sf.check_initialized()
@@ -558,19 +555,19 @@ class ConferenceApi(remote.Service):
         sessions = sessions.filter(Session.webSafeConfId == request.websafeConferenceKey)
 
         # return set of SessionForm objects one per Session
-        return SessionForms(items=[self._copySessionToForm(sesn) for sesn in sessions])
+        return SessionForms(items=[self._copySessionToForm(sn) for sn in sessions])
 
     @endpoints.method(SESSION_BY_TYPE, SessionForms,
             path='conference/{websafeConferenceKey}/sessions/{typeOfSession}',
             http_method='GET', name='getSessionsByType')
     def getSessionsByType(self, request):
-        """Given a conference, return all sessions of a specified type (eg lecture, keynote, workshop)"""
+        """Given a websaveConferenceKey, return all sessions of a specified type (eg lecture, keynote, workshop)"""
         sessions = Session.query()
         sessions = sessions.filter(Session.webSafeConfId == request.websafeConferenceKey)
         sessions = sessions.filter(Session.type == request.typeOfSession)
 
         # return set of SessionForm objects one per Session
-        return SessionForms(items=[self._copySessionToForm(sesn) for sesn in sessions])
+        return SessionForms(items=[self._copySessionToForm(sn) for sn in sessions])
 
     @endpoints.method(SESSION_BY_SPEAKER, SessionForms,
             path='sessions/{speaker}',
@@ -625,16 +622,13 @@ class ConferenceApi(remote.Service):
         if data['date']:
             data['date'] = datetime.strptime(data['date'][:10], "%Y-%m-%d").date()
 
-        # make Session Key from websafeConferenceKey
-        # s_key = ndb.Key(Session, request.webSafeConfId)
-        # data['key'] = s_key
         data['webSafeConfId'] = request.websafeConferenceKey
-        del data['websafeSessionKey']
+        del data['websafeSessionKey'] # this is only in the SessionForm
 
         logging.debug(data)
-        # creation of Conference & return (modified) ConferenceForm
+        # creation of Session, record the key to get the item & return (modified) SessionForm
         sessionKey = Session(**data).put()
-        # data['websafeSessionKey'] = sessionKey
+        # start the task to update the conference featured speaker if needed
         if data['speaker'] is not SESSION_DEFAULTS['speaker']:
             taskqueue.add(params={'websafeConferenceKey': request.websafeConferenceKey, 'speaker': data['speaker']},
                   url='/tasks/set_featured_speaker')
@@ -645,6 +639,8 @@ class ConferenceApi(remote.Service):
         path='sessions/addwish/{websafeSessionKey}',
         http_method='POST', name='addSessionToWishlist')
     def addSessionToWishlist(self, request):
+        """Add a session (using the websaveSessionKey) to the users session wish list.
+        Returns true if successful, false otherwise."""
         retval = None
         # make sure user is authorized
         user = endpoints.get_current_user()
@@ -670,6 +666,7 @@ class ConferenceApi(remote.Service):
         path='sessions/wishlist',
         http_method='GET', name='getSessionsInWishlist')
     def getSessionsInWishlist(self, request):
+        """Return list of Sessions the user has in there wish list."""
         # make sure user is authorized
         user = endpoints.get_current_user()
         if not user:
@@ -699,17 +696,18 @@ class ConferenceApi(remote.Service):
             path='getsessionbycity/{city}',
             http_method='GET', name='getSessionByCity')
     def getSessionByCity(self, request):
+        """Given a city, return all sessions across all conferences in the city."""
+        # get all the conferences in the city
         c = Conference.query()
         c = c.filter(Conference.city == request.city)
         conferences = c.fetch()
 
         logging.debug(conferences)
-
-        # get sessions
+        # get all the websafeConferenceKeys for the conferences
         confWebKeys = [conf.key.urlsafe() for conf in conferences]
 
         logging.debug(confWebKeys)
-        """find all the sessions matching any of the conferences that matched the city, across all conferences"""
+        # find all the sessions matching any of the conferences that matched the city, across all conferences
         sessions = Session.query()
         sessions = sessions.filter(Session.webSafeConfId.IN(confWebKeys))
 
@@ -731,20 +729,19 @@ class ConferenceApi(remote.Service):
         if(len(sessions) < 2):
             return
         announcement = "Featured speaker: %s, Sessions: " % speaker
-        logging.debug(announcement)
         for session in sessions:
             announcement += "%s, " % session.name
         # might want to check that the websafeConferenceKey is not none
         # slice off the trailing ", "
-        logging.debug(announcement)
         memcache.set(wsck, announcement[:-2])
+        logging.debug(announcement)
         return announcement
 
     @endpoints.method(CONF_GET_REQUEST, StringMessage,
             path='conference/{websafeConferenceKey}/featuredspeaker/get',
             http_method='GET', name='getFeaturedSpeaker')
     def getFeaturedSpeaker(self, request):
-        """Return featured speaker from memcache (if there is one, '' if none)."""
+        """Return featured speaker for the conference from memcache (if there is one, '' if none)."""
         logging.debug(request.websafeConferenceKey)
         info = memcache.get(request.websafeConferenceKey)
         logging.debug(info)
