@@ -15,14 +15,20 @@
 - For the full api see:  https://udacity-p4-chaddienhart.appspot.com/_ah/api/explorer
 
 #### Task 1 - Add Sessions to a Conference
-The Session entity stores the name, highlights, speaker, durationHours, type, date, startTime, 
-and web safe conference key of the conference it was created under. 
+The Session entity stores:
+- name as a string
+- highlights as a repeasted string (hopefully the session has more than one highlight)
+- speaker as a string
+- durationHours as a float (to allow for fractions of an hour)
+- type as a string
+- date as a date
+- startTime as a float (to allow for fractions of an hour)
+- web safe conference key as a string 
+
 The session key is auto-generated.
 In my implementation a Session is an kind and the speaker is just a string property of the Session. 
-I chose to store the web safe conference key instead of storing the session keys in the conference
-because for queries across all sessions can be implemented by filtering sessions. Also finding all
-sessions in a conference is just another filter. Note: that only the conference originator can 
-create sessions.
+I chose to store the conference key in the session entity so that queries across all sessions can be implemented by simply filtering sessions. Also finding all sessions in a conference is just another filter.
+Note: that only the conference originator can create sessions.
 
 #### Task 2 - Add Sessions to User Wishlist
 
