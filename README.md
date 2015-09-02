@@ -16,14 +16,14 @@
 
 #### Task 1 - Add Sessions to a Conference
 The Session entity stores:
-- name as a string
-- highlights as a repeasted string (hopefully the session has more than one highlight)
-- speaker as a string
-- durationHours as a float (to allow for fractions of an hour)
-- type as a string
-- date as a date
-- startTime as a float (to allow for fractions of an hour)
-- web safe conference key as a string 
+- name as a StringProperty
+- highlights as a repeasted StringProperty (hopefully the session has more than one highlight)
+- speaker as a StringProperty
+- durationHours as a FloatProperty (to allow for fractions of an hour)
+- type as a StringProperty
+- date as a DateProperty
+- startTime as a FloatProperty (to allow for fractions of an hour)
+- web safe conference key as a StringProperty 
 
 The session key is auto-generated.
 In my implementation a Session is an kind and the speaker is just a string property of the Session. 
