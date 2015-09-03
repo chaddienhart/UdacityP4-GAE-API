@@ -17,12 +17,12 @@
 #### Task 1 - Add Sessions to a Conference
 The Session entity stores:
 - name as a StringProperty
-- highlights as a repeasted StringProperty (hopefully the session has more than one highlight)
+- highlights as a repeated StringProperty (hopefully the session has more than one highlight)
 - speaker as a StringProperty
-- durationHours as a FloatProperty (to allow for fractions of an hour)
+- durationHours as a FloatProperty (I chose float over integer to allow for fractions of an hour)
 - type as a StringProperty
 - date as a DateProperty
-- startTime as a FloatProperty (to allow for fractions of an hour)
+- startTime as a FloatProperty (I chose float over integer to allow for fractions of an hour)
 - web safe conference key as a StringProperty 
 
 The session key is auto-generated.
