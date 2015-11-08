@@ -1,6 +1,6 @@
 ## Udacity Full Stack Web Developer Project 
 
-## Conference Central - [App Engine][1] APIs implemented using [Python][2]
+## [Conference Central][3] - [App Engine][1] APIs implemented using [Python][2]
 
 ### APIs added in this project 
 - getConferenceSessions()
@@ -12,7 +12,7 @@
 - getConferenceByTopic()
 - getSessionByCity()
 - getFeaturedSpeaker()
-- For the full api see:  https://udacity-p4-chaddienhart.appspot.com/_ah/api/explorer
+- For [the full api list][4]
 
 #### Task 1 - Add Sessions to a Conference
 The Session entity stores:
@@ -57,3 +57,5 @@ be recalled using the getFeaturedSpeaker() endpoint.
 
 [1]: https://developers.google.com/appengine
 [2]: http://python.org
+[3]: https://udacity-p4-chaddienhart.appspot.com/
+[4]: https://udacity-p4-chaddienhart.appspot.com/_ah/api/explorer
